@@ -1,4 +1,5 @@
-FROM debian:trixie-slim
+#FROM debian:trixie-slim
+FROM archlinux:base-20260628.0.549485
 LABEL Name=fog Version=0.0.1
 
 # envs
@@ -11,13 +12,15 @@ ENV WEB_USER fog
 ENV WEB_PWD fog
 
 # install needed packages
-RUN DEBIAN_FRONTEND=noninteractive apt install --update -y --no-install-recommends \
-    apt-transport-https ca-certificates wget iproute2
+#RUN DEBIAN_FRONTEND=noninteractive apt install --update -y --no-install-recommends \
+#    apt-transport-https ca-certificates wget iproute2
+
+RUN pacman --noconfirm -Syyu && pacman -S --noconfirm wget inetutils
 
 RUN wget https://github.com/FOGProject/fogproject/archive/refs/tags/${FOG_VERSION}.tar.gz \
     && tar xvfz ${FOG_VERSION}.tar.gz
 
-#RUN cd fogproject-${VERSION}/bin && bash ./installfog.sh --autoaccept
+#RUN cd fogproject-${FOG_VERSION}/bin && bash ./installfog.sh --autoaccept
 
 # entry point
 COPY entry.sh /usr/sbin/entry.sh
