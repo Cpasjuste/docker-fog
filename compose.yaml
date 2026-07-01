@@ -1,0 +1,6 @@
+services:
+  qoqcot:
+    image: fog
+    build:
+      context: .
+      dockerfile: ./Dockerfile

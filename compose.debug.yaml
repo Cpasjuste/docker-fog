@@ -1,0 +1,21 @@
+services:
+  fog:
+    image: fog
+    #privileged: true # TODO: fixme
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: unless-stopped
+    environment:
+      FOG_VERSION: 1.5.10.1870
+      MARIADB_HOST: ${MARIADB_HOST:-database}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-fog}
+      MARIADB_USER: ${MARIADB_USER:-fog}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-fog}
+      WEB_USER: ${WEB_USER:-fog}
+      WEB_PWD: ${WEB_PWD:-fog}
+    ports:
+      - "9445:80"
+
+volumes:
+  database:
