@@ -23,6 +23,7 @@ services:
       MARIADB_DATABASE: ${MARIADB_DATABASE:-fog}
       MARIADB_USER: ${MARIADB_USER:-fog}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-fog}
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-fog}
       WEB_USER: ${WEB_USER:-fog}
       WEB_PWD: ${WEB_PWD:-fog}
     ports:

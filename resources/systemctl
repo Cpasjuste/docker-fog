@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Fake systemctl for non-systemd environments (Docker / Arch containers / chroot)
+# Always returns success to satisfy installers like FOG
+
+cmd="$1"
+shift
+
+echo "HOOK - systemctl: $cmd $1 $2"
+
+case "$cmd" in
+    start|stop|restart|reload|daemon-reload|enable|disable|mask|unmask)
+        # Accept any service names but do nothing
+        exit 0
+        ;;
+
+    status)
+        # Pretend everything is running fine
+        if [[ "$1" == "--quiet" ]]; then
+            exit 0
+        fi
+        echo "● fake.service - Fake service"
+        echo "   Loaded: loaded (/dev/null; fake)"
+        echo "   Active: active (running)"
+        exit 0
+        ;;
+
+    is-active)
+        # Always "active"
+        if [[ "$1" == "--quiet" ]]; then
+            exit 0
+        fi
+        return 0
+        ;;
+
+    is-enabled)
+        # Always "enabled"
+        if [[ "$1" == "--quiet" ]]; then
+            exit 0
+        fi
+        return 0
+        ;;
+
+    list-units|list-unit-files)
+        # Return minimal fake output so scripts don't break parsing
+        echo "fake.service loaded active running"
+        exit 0
+        ;;
+
+    daemon-reexec|daemon-reload)
+        exit 0
+        ;;
+
+    *)
+        # Unknown commands are still "successful"
+        exit 0
+        ;;
+esac
