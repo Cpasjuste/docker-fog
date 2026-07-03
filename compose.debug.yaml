@@ -5,6 +5,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     restart: unless-stopped
+    privileged: true
     environment:
       FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.83
@@ -17,10 +18,20 @@ services:
       WEB_PWD: ${WEB_PWD:-fog}
     volumes:
       - database:/var/lib/mysql
+      - /images:/images # host: sudo mkdir /images && chown -R 1000:1000 /images
+      - /lib/modules:/lib/modules:ro # for nfs-kernel-server
+    networks:
+      - fog-network
     ports:
       - "9445:80/tcp" # web
       - "21:21/tcp"   # ftp
+      - "111:111"     # nfs
+      - "2049:2049"   # nfs
+      - "20048:20048" # nfs
       - "69:69/udp"   # tftp
-      #- "35000-40000:35000-40000/udp" # tftp
 volumes:
   database:
+
+networks:
+  fog-network:
+    driver: bridge

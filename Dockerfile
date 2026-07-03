@@ -16,7 +16,9 @@ ENV WEB_PWD fog
 RUN DEBIAN_FRONTEND=noninteractive apt install --update -y --no-install-recommends \
     apt-transport-https ca-certificates nano wget iproute2 sysv-rc-conf \
     build-essential mariadb-client mariadb-server \
-    systemd systemd-timesyncd # prevent /usr/bin/systemctl hook override
+    systemd systemd-timesyncd kmod
+# systemd systemd-timesyncd > prevent /usr/bin/systemctl hook override
+# kmod > nfs-kernel-server modules loading (modprobe)
 
 # retrieve fog tarball
 RUN wget https://github.com/FOGProject/fogproject/archive/refs/tags/${FOG_VERSION}.tar.gz \

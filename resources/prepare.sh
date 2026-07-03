@@ -20,3 +20,6 @@ echo "installing fog..."
 
 echo "backup default fog database"
 tar -czf /root/fog_default.sql.tar.gz /var/lib/mysql
+
+echo "backup images data"
+tar -czf /root/images.tar.gz /images
