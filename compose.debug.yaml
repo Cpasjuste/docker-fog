@@ -1,33 +1,26 @@
 services:
-  database:
-    image: mariadb:12
-    restart: unless-stopped
-    shm_size: 128mb
-    volumes:
-      - database:/var/lib/mysql
-    environment:
-      MARIADB_DATABASE: ${MARIADB_DATABASE:-fog}
-      MARIADB_USER: ${MARIADB_USER:-fog}
-      MARIADB_PASSWORD: ${MARIADB_PASSWORD:-fog}
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-fog}
   fog:
     image: fog
-    #privileged: true # TODO: fixme
     build:
       context: .
       dockerfile: ./Dockerfile
     restart: unless-stopped
     environment:
       FOG_VERSION: 1.5.10.1870
-      MARIADB_HOST: ${MARIADB_HOST:-database}
+      HTTP_ADDRESS: 192.168.0.83
+      HTTP_PORT: 9445
       MARIADB_DATABASE: ${MARIADB_DATABASE:-fog}
       MARIADB_USER: ${MARIADB_USER:-fog}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-fog}
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-fog}
       WEB_USER: ${WEB_USER:-fog}
       WEB_PWD: ${WEB_PWD:-fog}
+    volumes:
+      - database:/var/lib/mysql
     ports:
-      - "9445:80"
-
+      - "9445:80/tcp" # web
+      - "21:21/tcp"   # ftp
+      - "69:69/udp"   # tftp
+      #- "35000-40000:35000-40000/udp" # tftp
 volumes:
   database:

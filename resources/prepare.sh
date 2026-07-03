@@ -2,25 +2,21 @@
 set -e
 
 echo "systemctl hook"
-#cp /usr/bin/systemctl /usr/bin/systemctl.stock \
-#    && cp /root/resources/systemctl /usr/bin/systemctl \
-#    && chmod a+x /usr/bin/systemctl
-#mv /usr/bin/systemctl /usr/bin/systemctl.stock
+cp /usr/bin/systemctl /usr/bin/systemctl.stock \
+    && cp /root/resources/systemctl /usr/bin/systemctl \
+    && chmod a+x /usr/bin/systemctl
+
+echo "mariadb mysql init.d fix (?!)"
+ln -sf /etc/init.d/mariadb /etc/init.d/mysql
 
 echo "use custom fog settings"
-mkdir /opt/fog \
-    && cp /root/resources/fogsettings.debian /opt/fog/.fogsettings
+mkdir /opt/fog && cp /root/resources/fogsettings.debian /opt/fog/.fogsettings
 
-#echo "importing (default) database if needed"
-#mysql -h${MARIADB_HOST} -uroot -p${MARIADB_ROOT_PASSWORD} ${MARIADB_DATABASE} < /root/resources/fogbackup-arch.sql
-#mysql -hlocalhost -uroot ${MARIADB_DATABASE} < /root/resources/fogbackup-debian.sql
+echo "fog install speedup fix"
+sed -i 's/checkInternetConnection/#checkInternetConnection/g' /root/fogproject-${FOG_VERSION}/bin/installfog.sh
 
 echo "installing fog..."
-# speed-up things...
-sed -i 's/checkInternetConnection/#checkInternetConnection/g' /root/fogproject-${FOG_VERSION}/bin/installfog.sh
-ln -sf /etc/init.d/mariadb /etc/init.d/mysql
-cp /root/resources/systemctl /usr/bin/systemctl && chmod a+x /usr/bin/systemctl
-#/root/fogproject-${FOG_VERSION}/bin/installfog.sh --autoaccept
+/root/fogproject-${FOG_VERSION}/bin/installfog.sh --autoaccept
 
-echo "creating default image path"
-mkdir /image
+echo "backup default fog database"
+tar -czf /root/fog_default.sql.tar.gz /var/lib/mysql
