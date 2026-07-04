@@ -19,8 +19,6 @@ services:
       - database:/var/lib/mysql
       - /images:/images # host: sudo mkdir /images && chown -R 1000:1000 /images
       - /lib/modules:/lib/modules:ro # for nfs-kernel-server
-    networks:
-      - fog-network
     ports:
       - "9445:80/tcp" # web
       - "21:21/tcp"   # ftp
@@ -30,7 +28,3 @@ services:
       - "69:69/udp"   # tftp
 volumes:
   database:
-
-networks:
-  fog-network:
-    driver: bridge
