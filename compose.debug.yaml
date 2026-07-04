@@ -5,15 +5,14 @@ services:
       context: .
       dockerfile: ./Dockerfile
     restart: unless-stopped
-    privileged: true
+    privileged: true # for nfs-kernel-server
     environment:
       FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.83
       HTTP_PORT: 9445
-      MARIADB_DATABASE: ${MARIADB_DATABASE:-fog}
       MARIADB_USER: ${MARIADB_USER:-fog}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:-fog}
-      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:-fog}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-fog}
       WEB_USER: ${WEB_USER:-fog}
       WEB_PWD: ${WEB_PWD:-fog}
     volumes:

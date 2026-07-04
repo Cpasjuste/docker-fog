@@ -34,6 +34,10 @@ echo "starting fog services"
 /etc/init.d/FOGImageReplicator start
 /etc/init.d/FOGImageSize start
 /etc/init.d/FOGMulticastManager start
+/etc/init.d/FOGPingHosts start
+/etc/init.d/FOGScheduler start
+/etc/init.d/FOGSnapinHash start
+/etc/init.d/FOGSnapinReplicator start
 
 echo "fixing database addresses"
 mysql -hlocalhost -uroot -D ${MARIADB_DATABASE} -e "
