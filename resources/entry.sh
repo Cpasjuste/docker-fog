@@ -28,16 +28,6 @@ echo "/images *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonui
 echo "/images/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=1000,anongid=1000,fsid=1)" >> /etc/exports
 /etc/init.d/nfs-kernel-server start
 
-echo "starting fog services"
-rm /var/run/fog/* # pid files
-/etc/init.d/FOGImageReplicator start
-/etc/init.d/FOGImageSize start
-/etc/init.d/FOGMulticastManager start
-/etc/init.d/FOGPingHosts start
-/etc/init.d/FOGScheduler start
-/etc/init.d/FOGSnapinHash start
-/etc/init.d/FOGSnapinReplicator start
-
 echo "fixing tftpboot"
 sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
 
@@ -55,6 +45,15 @@ UPDATE nfsGroupMembers SET ngmHostname = '${HTTP_ADDRESS}' WHERE ngmID = 1;
 UPDATE nfsGroupMembers SET ngmPass = '${STORAGE_PASSWORD}' WHERE ngmID = 1;
 UPDATE users SET uPass = MD5('${WEB_PASSWORD}') WHERE uName = 'fog';
 "
+
+echo "starting fog services"
+/etc/init.d/FOGImageReplicator restart
+/etc/init.d/FOGImageSize restart
+/etc/init.d/FOGMulticastManager restart
+/etc/init.d/FOGPingHosts restart
+/etc/init.d/FOGScheduler restart
+/etc/init.d/FOGSnapinHash restart
+/etc/init.d/FOGSnapinReplicator restart
 
 # sleep...
 echo "all done..."
