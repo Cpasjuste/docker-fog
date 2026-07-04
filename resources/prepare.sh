@@ -17,6 +17,7 @@ sed -i 's/checkInternetConnection/#checkInternetConnection/g' /root/fogproject-$
 
 echo "installing fog..."
 /root/fogproject-${FOG_VERSION}/bin/installfog.sh --autoaccept
+rm -rf /root/fogproject-${FOG_VERSION}
 
 echo "backup default fog database"
 tar -czf /root/fog_default.sql.tar.gz /var/lib/mysql

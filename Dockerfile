@@ -17,6 +17,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt install --update -y --no-install-recommen
 # retrieve fog tarball
 RUN wget https://github.com/FOGProject/fogproject/archive/refs/tags/${FOG_VERSION}.tar.gz \
     && tar xvfz ${FOG_VERSION}.tar.gz -C /root \
+    && mv /root/fogproject-${FOG_VERSION} /root/fogproject \
     && rm ${FOG_VERSION}.tar.gz
 
 # handle needed resources

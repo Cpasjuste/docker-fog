@@ -4,7 +4,6 @@ services:
     restart: unless-stopped
     privileged: true # for nfs-kernel-server
     environment:
-      FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.83 # also used for tftp/nfs/... addresses
       # you can use a custom http port, but "Storage Node Disk Usage"
       # and "Bandwidth" graphs wont display correctly. this can be fixed with a reverse proxy
