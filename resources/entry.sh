@@ -47,6 +47,7 @@ UPDATE users SET uPass = MD5('${WEB_PASSWORD}') WHERE uName = 'fog';
 "
 
 echo "starting fog services"
+sleep 10 # not sure why i need to delay fog services start
 /etc/init.d/FOGImageReplicator restart
 /etc/init.d/FOGImageSize restart
 /etc/init.d/FOGMulticastManager restart
