@@ -10,11 +10,14 @@ services:
       FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.83 # also used for tftp/nfs/... addresses
       # you can use a custom http port, but "Storage Node Disk Usage"
-      # and "Bandwidth" graphs wont display correctly. this can be fixed with a reverse proxy
+      # and "Bandwidth" graphs wont display correctly. 
+      # this can be fixed with a reverse proxy (or use port 80)
       HTTP_PORT: ${HTTP_PORT:-80}
       WEB_PASSWORD: ${WEB_PASSWORD:-password} # for "fog" web user
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dockerfogsql} # mysql user (fog) password
-      STORAGE_PASSWORD: ${STORAGE_PASSWORD:-dockerfogstorage} # builtin storage (nfs/ftp/tftp...) password
+      # builtin storage (shell/nfs/ftp/tftp...) password
+      # use alphanumeric because it is not handled correctly by fog (php?)
+      STORAGE_PASSWORD: ${STORAGE_PASSWORD:-dockerfogstorage}
     volumes:
       - database:/var/lib/mysql
       - /images:/images # on host: sudo mkdir /images && chown -R 1000:1000 /images
