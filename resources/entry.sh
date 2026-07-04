@@ -24,9 +24,6 @@ echo "starting required services"
 /etc/init.d/rpcbind start
 
 echo "starting nfs server"
-#umount -f /proc/fs/nfsd
-#rmmod {nfs,nfsd,rpcsec_gss_krb5}
-#modprobe {nfs,nfsd,rpcsec_gss_krb5}
 echo "/images *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=1000,anongid=1000,fsid=0)" > /etc/exports
 echo "/images/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=1000,anongid=1000,fsid=1)" >> /etc/exports
 /etc/init.d/nfs-kernel-server start
