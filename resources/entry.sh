@@ -1,15 +1,16 @@
 #!/bin/bash
 set -e
 
-echo "importing (default) database if needed"
-if mysql -hlocalhost -uroot -e "USE \`${MARIADB_DATABASE}\`" >/dev/null 2>&1; then
+echo "importing (default) database if needed" # mariadb not yet started
+#if mysql -hlocalhost -uroot -e "USE \`${MARIADB_DATABASE}\`" >/dev/null 2>&1; then
+if [ -z "$(ls -A /var/lib/mysql)" ]; then
     echo "import needed, restoring fog_default.sql.tar.gz"
     tar -zxf /root/fog_default.sql.tar.gz -C /
 fi
 
 echo "restoring images data if needed"
 if [ -z "$(ls -A /images)" ]; then
-    echo "restoring images data..."
+    echo "restoring images.tar.gz..."
     tar -zxf /root/images.tar.gz -C /
 fi
 
@@ -28,6 +29,8 @@ echo "starting nfs server"
 #umount -f /proc/fs/nfsd
 #rmmod {nfs,nfsd,rpcsec_gss_krb5}
 #modprobe {nfs,nfsd,rpcsec_gss_krb5}
+echo "/images *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=1000,anongid=1000,fsid=0)" > /etc/exports
+echo "/images/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=1000,anongid=1000,fsid=1)" >> /etc/exports
 /etc/init.d/nfs-kernel-server start
 
 echo "starting fog services"
