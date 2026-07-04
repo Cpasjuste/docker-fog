@@ -42,17 +42,11 @@ echo "starting fog services"
 /etc/init.d/FOGSnapinHash start
 /etc/init.d/FOGSnapinReplicator start
 
-echo "fixing database addresses"
+echo "fixing database"
 mysql -hlocalhost -uroot -D ${MARIADB_DATABASE} -e "
-UPDATE globalSettings
-SET settingValue = '${HTTP_ADDRESS}'
-WHERE settingKey = 'FOG_TFTP_HOST';
-UPDATE globalSettings
-SET settingValue = '${HTTP_ADDRESS}:${HTTP_PORT}'
-WHERE settingKey = 'FOG_WEB_HOST';
-UPDATE nfsGroupMembers
-SET ngmHostname = '${HTTP_ADDRESS}'
-WHERE ngmID = 1;
+UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}' WHERE settingKey = 'FOG_TFTP_HOST';
+UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}:${HTTP_PORT}' WHERE settingKey = 'FOG_WEB_HOST';
+UPDATE nfsGroupMembers SET ngmHostname = '${HTTP_ADDRESS}' WHERE ngmID = 1;
 "
 
 # sleep...

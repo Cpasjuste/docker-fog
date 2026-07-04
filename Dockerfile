@@ -9,7 +9,7 @@ ENV MARIADB_USER fog
 ENV MARIADB_PASSWORD fog
 ENV MARIADB_DATABASE fog
 ENV WEB_USER fog
-ENV WEB_PWD fog
+ENV WEB_PWD password
 
 # install needed packages
 RUN DEBIAN_FRONTEND=noninteractive apt install --update -y --no-install-recommends \
