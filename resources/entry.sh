@@ -1,21 +1,19 @@
 #!/bin/bash
 set -e
 
+# restore a default database when the "database" volume is new
 echo "importing (default) database if needed" # mariadb not yet started
-#if mysql -hlocalhost -uroot -e "USE \`${MARIADB_DATABASE}\`" >/dev/null 2>&1; then
 if [ -z "$(ls -A /var/lib/mysql)" ]; then
     echo "import needed, restoring fog_default.sql.tar.gz"
     tar -zxf /root/fog_default.sql.tar.gz -C /
 fi
 
+# restore a default images directory when the "images" volume is new
 echo "restoring images data if needed"
 if [ -z "$(ls -A /images)" ]; then
     echo "restoring images.tar.gz..."
     tar -zxf /root/images.tar.gz -C /
 fi
-
-echo "fixing tftpboot"
-sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
 
 echo "starting required services"
 /etc/init.d/mariadb start
@@ -42,11 +40,20 @@ echo "starting fog services"
 /etc/init.d/FOGSnapinHash start
 /etc/init.d/FOGSnapinReplicator start
 
-echo "fixing database"
-mysql -hlocalhost -uroot -D ${MARIADB_DATABASE} -e "
+echo "fixing tftpboot"
+sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
+
+echo "fixing databse and passwords"
+echo "fogproject:${STORAGE_PASSWORD}" | chpasswd
+sed -i "s/#docker-fog-password#/${STORAGE_PASSWORD}/g" /var/www/fog/lib/fog/config.class.php
+sed -i "s/#docker-fog-snmysqlpass#/${MYSQL_PASSWORD}/g" /var/www/fog/lib/fog/config.class.php
+mysql -hlocalhost -uroot -e "ALTER USER 'fog'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+mysql -hlocalhost -uroot -D fog -e "
 UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}' WHERE settingKey = 'FOG_TFTP_HOST';
 UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}:${HTTP_PORT}' WHERE settingKey = 'FOG_WEB_HOST';
+UPDATE globalSettings SET settingValue = '${STORAGE_PASSWORD}' WHERE settingKey = 'FOG_TFTP_FTP_PASSWORD';
 UPDATE nfsGroupMembers SET ngmHostname = '${HTTP_ADDRESS}' WHERE ngmID = 1;
+UPDATE nfsGroupMembers SET ngmPass = '${STORAGE_PASSWORD}' WHERE ngmID = 1;
 "
 
 # sleep...

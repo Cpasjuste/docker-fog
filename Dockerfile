@@ -5,9 +5,6 @@ LABEL Name=fog Version=1.0.0
 ENV FOG_VERSION=1.5.10.1870
 ENV HTTP_ADDRESS=0.0.0.0
 ENV HTTP_PORT=80
-ENV MARIADB_USER fog
-ENV MARIADB_PASSWORD fog
-ENV MARIADB_DATABASE fog
 ENV WEB_USER fog
 ENV WEB_PWD password
 
@@ -26,9 +23,9 @@ RUN wget https://github.com/FOGProject/fogproject/archive/refs/tags/${FOG_VERSIO
 
 # handle needed resources
 COPY resources /root/resources
-RUN chmod a+x /root/resources/prepare.sh \
-    && /root/resources/prepare.sh \
-    && chmod +x /root/resources/entry.sh
+RUN chmod +x /root/resources/entry.sh \
+    && chmod a+x /root/resources/prepare.sh \
+    && /root/resources/prepare.sh 
 
 # entry point
 ENTRYPOINT ["/root/resources/entry.sh"]
