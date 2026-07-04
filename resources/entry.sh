@@ -32,6 +32,7 @@ echo "/images/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=1000,ano
 /etc/init.d/nfs-kernel-server start
 
 echo "starting fog services"
+rm /var/run/fog/* # pid files
 /etc/init.d/FOGImageReplicator start
 /etc/init.d/FOGImageSize start
 /etc/init.d/FOGMulticastManager start
