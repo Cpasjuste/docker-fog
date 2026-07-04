@@ -44,16 +44,18 @@ echo "fixing tftpboot"
 sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
 
 echo "fixing databse and passwords"
-echo "fogproject:${STORAGE_PASSWORD}" | chpasswd
-sed -i "s/#docker-fog-password#/${STORAGE_PASSWORD}/g" /var/www/fog/lib/fog/config.class.php
-sed -i "s/#docker-fog-snmysqlpass#/${MYSQL_PASSWORD}/g" /var/www/fog/lib/fog/config.class.php
+printf '%s:%s\n' 'fogproject' "${STORAGE_PASSWORD}" | chpasswd
+perl -0pi -e 's/\Q#docker-fog-password#\E/$ENV{STORAGE_PASSWORD}/g;' /var/www/fog/lib/fog/config.class.php
+perl -0pi -e 's/\Q#docker-fog-snmysqlpass#\E/$ENV{MYSQL_PASSWORD}/g;' /var/www/fog/lib/fog/config.class.php
 mysql -hlocalhost -uroot -e "ALTER USER 'fog'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';"
+mysql -hlocalhost -uroot -D fog -e "UPDATE users SET uPass = MD5('NEW_PASSWORD') WHERE uName = 'fog';"
 mysql -hlocalhost -uroot -D fog -e "
 UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}' WHERE settingKey = 'FOG_TFTP_HOST';
 UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}:${HTTP_PORT}' WHERE settingKey = 'FOG_WEB_HOST';
 UPDATE globalSettings SET settingValue = '${STORAGE_PASSWORD}' WHERE settingKey = 'FOG_TFTP_FTP_PASSWORD';
 UPDATE nfsGroupMembers SET ngmHostname = '${HTTP_ADDRESS}' WHERE ngmID = 1;
 UPDATE nfsGroupMembers SET ngmPass = '${STORAGE_PASSWORD}' WHERE ngmID = 1;
+UPDATE users SET uPass = MD5('${WEB_PASSWORD}') WHERE uName = 'fog';
 "
 
 # sleep...

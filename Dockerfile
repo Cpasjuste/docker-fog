@@ -5,8 +5,6 @@ LABEL Name=fog Version=1.0.0
 ENV FOG_VERSION=1.5.10.1870
 ENV HTTP_ADDRESS=0.0.0.0
 ENV HTTP_PORT=80
-ENV WEB_USER fog
-ENV WEB_PWD password
 
 # install needed packages
 RUN DEBIAN_FRONTEND=noninteractive apt install --update -y --no-install-recommends \
