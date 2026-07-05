@@ -20,8 +20,8 @@ services:
     volumes:
       - database:/var/lib/mysql
       - /images:/images # on host: sudo mkdir /images && chown -R 1000:1000 /images
-      - /lib/modules:/lib/modules:ro # for nfs-kernel-server
-    network_mode: host
+      - /lib/modules:/lib/modules:ro # for nfs-kernel-server (remove if nfs modules are loaded on host)
+    network_mode: host # needed ports: https://github.com/Cpasjuste/docker-fog/blob/main/README.md
     
 volumes:
   database:

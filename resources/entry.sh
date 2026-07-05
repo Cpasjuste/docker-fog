@@ -18,6 +18,7 @@ fi
 echo "fixing web port"
 sed -i "s/:80/:${HTTP_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
 sed -i "s/Listen 80/Listen ${HTTP_PORT}/g" /etc/apache2/ports.conf
+sed -i "s/Listen 443//g" /etc/apache2/ports.conf
 
 echo "fixing tftpboot"
 sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
