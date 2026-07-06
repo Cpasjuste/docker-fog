@@ -1,0 +1,10 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Docker Compose Rebuild No Cache (FOG)",
+            "type": "shell",
+            "command": "docker compose -f compose.debug-host.yaml build --no-cache fog"
+        }
+    ]
+}
