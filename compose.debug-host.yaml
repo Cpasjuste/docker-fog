@@ -16,6 +16,7 @@ services:
       # and "Bandwidth" graphs wont display correctly. 
       # this can be fixed with a reverse proxy (or use port 80)
       HTTP_PORT: ${HTTP_PORT:-9445}
+      PHP_FPM_PORT: ${PHP_FPM_PORT:-9444} # listen on localhost, no need to open port in firewall
       WEB_PASSWORD: ${WEB_PASSWORD:-password} # web user (fog) password
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dockerfogsql} # mysql user (fog) password
       # builtin storage (shell/nfs/ftp/tftp...) password
@@ -26,7 +27,6 @@ services:
       - /images:/images # on host: sudo mkdir /images && chown -R 1000:1000 /images
       - /lib/modules:/lib/modules:ro # for nfs-kernel-server (remove if nfs modules are loaded on host)
     network_mode: host # needed ports: https://github.com/Cpasjuste/docker-fog/blob/main/README.md
-    # TODO: fix php-fpm with custom host port
 
 volumes:
   database:

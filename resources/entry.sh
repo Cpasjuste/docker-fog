@@ -15,15 +15,19 @@ if [ -z "$(ls -A /images)" ]; then
     tar -zxf /root/images.tar.gz -C /
 fi
 
-echo "fixing web port"
+echo "setting up web port"
 sed -i "s/:80/:${HTTP_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
 sed -i "s/Listen 80/Listen ${HTTP_PORT}/g" /etc/apache2/ports.conf
 sed -i "s/Listen 443//g" /etc/apache2/ports.conf
 
-echo "fixing tftpboot"
+echo "setting up tftpboot address"
 sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
 
-echo "fixing multicast"
+echo "setting up php-fpm custom port"
+sed -i "s/:9000/:${PHP_FPM_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
+sed -i "s/:9000/:${PHP_FPM_PORT}/g" /etc/php/8.4/fpm/pool.d/www.conf
+
+echo "setting up multicast"
 # add host (HTTP_ADDRESS) address to "know ips"
 # https://github.com/FOGProject/fogproject/blob/stable/packages/web/lib/fog/fogbase.class.php
 sed -i "s/127.0.1.1')/127.0.1.1'), array('${HTTP_ADDRESS}', '${HTTP_ADDRESS}')/g" /var/www/fog/lib/fog/fogbase.class.php
