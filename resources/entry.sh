@@ -40,10 +40,17 @@ echo "starting required services"
 /etc/init.d/tftpd-hpa start
 /etc/init.d/rpcbind start
 
-echo "starting nfs server"
+if [ "$USE_UNFS3" = true ] ; then
+echo "starting unfs3 server"
+echo "/images (ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=1000,anongid=1000,fsid=0)" > /etc/exports
+echo "/images/dev (rw,async,no_wdelay,subtree_check,all_squash,anonuid=1000,anongid=1000,fsid=1)" >> /etc/exports
+unfsd -t -n 2049 -m 20048
+else
+echo "starting nfs-kernel server"
 echo "/images *(ro,sync,no_wdelay,subtree_check,insecure_locks,all_squash,anonuid=1000,anongid=1000,fsid=0)" > /etc/exports
 echo "/images/dev *(rw,async,no_wdelay,subtree_check,all_squash,anonuid=1000,anongid=1000,fsid=1)" >> /etc/exports
 /etc/init.d/nfs-kernel-server start
+fi
 
 echo "fixing databse and passwords"
 printf '%s:%s\n' 'fogproject' "${STORAGE_PASSWORD}" | chpasswd

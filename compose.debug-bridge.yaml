@@ -5,10 +5,7 @@ services:
       context: .
       dockerfile: ./Dockerfile
     restart: unless-stopped
-    # for nfs-kernel-server
-    # load nfs modules on host to prevent privileged mode:
-    # modprobe {nfs,nfsd,rpcsec_gss_krb5}
-    privileged: true
+    #privileged: true # for nfs-kernel-server mode
     environment:
       FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.83 # also used for ftp/tftp/nfs/...
@@ -22,10 +19,11 @@ services:
       # builtin storage (shell/nfs/ftp/tftp...) password
       # use alphanumeric because it is not handled correctly by fog (php?)
       STORAGE_PASSWORD: ${STORAGE_PASSWORD:-dockerfogstorage}
+      USE_UNFS3: true # use userland nfs server (no need for privileged mode)
     volumes:
       - database:/var/lib/mysql
       - /images:/images # on host: sudo mkdir /images && chown -R 1000:1000 /images
-      - /lib/modules:/lib/modules:ro # for nfs-kernel-server (remove if nfs modules are loaded on host)
+      #- /lib/modules:/lib/modules:ro # for nfs-kernel-server mode
     ports:
       - "${HTTP_PORT:-80}:80"         # web
       - "21:21"                       # ftp
