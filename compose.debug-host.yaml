@@ -9,10 +9,7 @@ services:
     environment:
       FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.83 # also used for ftp/tftp/nfs/...
-      # you can use a custom http port, but storage "Node Disk Usage"
-      # and "Bandwidth" graphs wont display correctly. 
-      # this can be fixed with a reverse proxy (or use port 80)
-      HTTP_PORT: ${HTTP_PORT:-9445}
+      HTTP_PORT: ${HTTP_PORT:-9445} # you can use a custom http port
       PHP_FPM_PORT: ${PHP_FPM_PORT:-9444} # listen on localhost, no need to open port in firewall
       WEB_PASSWORD: ${WEB_PASSWORD:-password} # web user (fog) password
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dockerfogsql} # mysql user (fog) password

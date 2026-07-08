@@ -20,6 +20,30 @@ sed -i "s/:80/:${HTTP_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
 sed -i "s/Listen 80/Listen ${HTTP_PORT}/g" /etc/apache2/ports.conf
 sed -i "s/Listen 443//g" /etc/apache2/ports.conf
 
+# add custom http port to dashboardpage for storage node id 1 (builtin storage node)
+echo "fixing storage node web port"
+sed -i "s|\$ip = \$StorageNode->ip;|if (intval(\$StorageNode->id) === 1) { \$ip = \$StorageNode->ip . \":$HTTP_PORT\"; } else { \$ip = \$StorageNode->ip; }|g" \
+    /var/www/fog/lib/pages/dashboardpage.class.php
+sed -i "s|\$this->obj->get('ip')|\$ip|g" /var/www/fog/lib/pages/dashboardpage.class.php
+sed -i -f - /var/www/fog/lib/pages/dashboardpage.class.php <<EOF
+/public function diskusage()/{
+N
+c\
+public function diskusage()\\
+    {\\
+        \$ip = \$this->obj->get('ip');\\
+        \$id = \$this->obj->get('id');\\
+        if (intval(\$id) === 1) { \$ip = \$ip . ":${HTTP_PORT}"; }
+}
+EOF
+sed -i "s|\$this->obj->get('ip')|\$ip|g" /var/www/fog/lib/pages/serverinfo.class.php
+sed -i -f - /var/www/fog/lib/pages/serverinfo.class.php <<EOF
+/\$url = sprintf/i\\
+        \$ip = \$this->obj->get('ip');\\
+        \$id = \$this->obj->get('id');\\
+        if (intval(\$id) === 1) { \$ip = \$ip . ":${HTTP_PORT}"; }
+EOF
+
 echo "setting up tftpboot address"
 sed -i "s/0.0.0.0/${HTTP_ADDRESS}:${HTTP_PORT}/g" /tftpboot/default.ipxe
 
@@ -27,7 +51,7 @@ echo "setting up php-fpm custom port"
 sed -i "s/:9000/:${PHP_FPM_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
 sed -i "s/:9000/:${PHP_FPM_PORT}/g" /etc/php/8.4/fpm/pool.d/www.conf
 
-echo "setting up multicast"
+echo "fixing multicast"
 # add host (HTTP_ADDRESS) address to "know ips"
 # https://github.com/FOGProject/fogproject/blob/stable/packages/web/lib/fog/fogbase.class.php
 sed -i "s/127.0.1.1')/127.0.1.1'), array('${HTTP_ADDRESS}', '${HTTP_ADDRESS}')/g" /var/www/fog/lib/fog/fogbase.class.php
