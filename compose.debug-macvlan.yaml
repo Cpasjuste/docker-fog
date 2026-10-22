@@ -7,7 +7,6 @@ services:
     restart: unless-stopped
     #privileged: true # for nfs-kernel-server mode
     environment:
-      FOG_VERSION: 1.5.10.1870
       HTTP_ADDRESS: 192.168.0.50 # also used for ftp/tftp/nfs/...
       HTTP_PORT: ${HTTP_PORT:-9445} # you can use a custom http port
       PHP_FPM_PORT: ${PHP_FPM_PORT:-9444} # listen on localhost, no need to open port in firewall

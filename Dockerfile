@@ -2,7 +2,7 @@ FROM debian:trixie-slim
 LABEL Name=fog Version=1.0.0
 
 # envs
-ENV FOG_VERSION=1.5.10.1870 \
+ENV FOG_VERSION=1.5.10.2518 \
     HTTP_ADDRESS=0.0.0.0 \
     HTTP_PORT=80
 
