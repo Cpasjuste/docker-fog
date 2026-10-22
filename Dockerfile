@@ -4,7 +4,8 @@ LABEL Name=fog Version=1.0.0
 # envs
 ENV FOG_VERSION=1.5.10.2518 \
     HTTP_ADDRESS=0.0.0.0 \
-    HTTP_PORT=80
+    HTTP_PORT=80 \
+    INTERFACE_NAME=eth0
 
 # install needed packages
 RUN DEBIAN_FRONTEND=noninteractive apt-get update \

@@ -56,6 +56,14 @@ echo "fixing multicast"
 # https://github.com/FOGProject/fogproject/blob/stable/packages/web/lib/fog/fogbase.class.php
 sed -i "s/127.0.1.1')/127.0.1.1'), array('${HTTP_ADDRESS}', '${HTTP_ADDRESS}')/g" /var/www/fog/lib/fog/fogbase.class.php
 
+echo "fixing network interface"
+CFG_PATH="/var/www/html/fog/lib/fog/config.class.php"
+sed -i "s/define('MULTICASTINTERFACE', 'eth0')/define('MULTICASTINTERFACE', '${INTERFACE_NAME:-eth0}')/g" "$CFG_PATH"
+sed -i "s/define('STORAGE_INTERFACE', 'eth0')/define('STORAGE_INTERFACE', '${INTERFACE_NAME:-eth0}')/g" "$CFG_PATH"
+sed -i "s/define('WOL_INTERFACE', \"eth0\")/define('WOL_INTERFACE', \"${INTERFACE_NAME:-eth0}\")/g" "$CFG_PATH"
+sed -i "s/define('NFS_ETH_MONITOR', \"eth0\")/define('NFS_ETH_MONITOR', \"${INTERFACE_NAME:-eth0}\")/g" "$CFG_PATH"
+sed -i "s/define('UDPCAST_INTERFACE', \"eth0\")/define('UDPCAST_INTERFACE', \"${INTERFACE_NAME:-eth0}\")/g" "$CFG_PATH"
+
 echo "starting required services"
 /etc/init.d/mariadb start
 /etc/init.d/php8.4-fpm start
@@ -88,8 +96,12 @@ UPDATE globalSettings SET settingValue = '${HTTP_ADDRESS}:${HTTP_PORT}' WHERE se
 UPDATE globalSettings SET settingValue = '${STORAGE_PASSWORD}' WHERE settingKey = 'FOG_TFTP_FTP_PASSWORD';
 UPDATE globalSettings SET settingValue = '55000' WHERE settingKey = 'FOG_UDPCAST_STARTINGPORT';
 UPDATE globalSettings SET settingValue = '55000' WHERE settingKey = 'FOG_MULTICAST_PORT_OVERRIDE';
+UPDATE globalSettings SET settingValue = '${INTERFACE_NAME:-eth0}' WHERE settingKey = 'FOG_UDPCAST_INTERFACE';
+UPDATE globalSettings SET settingValue = '${INTERFACE_NAME:-eth0}' WHERE settingKey = 'FOG_NFS_ETH_MONITOR';
+UPDATE globalSettings SET settingValue = '${INTERFACE_NAME:-eth0}' WHERE settingKey = 'FOG_WOL_INTERFACE';
 UPDATE nfsGroupMembers SET ngmHostname = '${HTTP_ADDRESS}' WHERE ngmID = 1;
 UPDATE nfsGroupMembers SET ngmPass = '${STORAGE_PASSWORD}' WHERE ngmID = 1;
+UPDATE nfsGroupMembers SET ngmInterface = '${INTERFACE_NAME:-eth0}' WHERE ngmID = 1;
 UPDATE users SET uPass = MD5('${WEB_PASSWORD}') WHERE uName = 'fog';
 "
 

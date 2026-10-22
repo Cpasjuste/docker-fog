@@ -4,9 +4,10 @@ services:
     restart: unless-stopped
     #privileged: true # for nfs-kernel-server mode
     environment:
-      HTTP_ADDRESS: 192.168.0.1 # also used for ftp/tftp/nfs/...
+      HTTP_ADDRESS: ${HTTP_ADDRESS:-192.168.0.1} # also used for ftp/tftp/nfs/...
       HTTP_PORT: ${HTTP_PORT:-9445} # you can use a custom http port
       PHP_FPM_PORT: ${PHP_FPM_PORT:-9444} # listen on localhost, no need to open port in firewall
+      INTERFACE_NAME: ${INTERFACE_NAME:-eth0} # interface name for multicast, wol, etc...
       WEB_PASSWORD: ${WEB_PASSWORD:-password} # web user (fog) password
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dockerfogsql} # mysql user (fog) password
       # builtin storage (shell/nfs/ftp/tftp...) password
@@ -15,7 +16,7 @@ services:
       USE_UNFS3: true # use userland nfs server (no need for privileged mode)
     volumes:
       - database:/var/lib/mysql
-      - /images:/images # on host: sudo mkdir /images && chown -R 1000:1000 /images
+      - /images:/images # on host: sudo mkdir /images && sudo chown -R 1000:1000 /images
       #- /lib/modules:/lib/modules:ro # for nfs-kernel-server mode
     network_mode: host # needed ports: https://github.com/Cpasjuste/docker-fog/blob/main/README.md
     

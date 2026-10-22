@@ -18,7 +18,7 @@ services:
       USE_UNFS3: true # use userland nfs server (no need for privileged mode)
     volumes:
       - database:/var/lib/mysql
-      - /images:/images # on host: sudo mkdir /images && chown -R 1000:1000 /images
+      - /images:/images # on host: sudo mkdir /images && sudo chown -R 1000:1000 /images
       #- /lib/modules:/lib/modules:ro # for nfs-kernel-server mode
     network_mode: host # needed ports: https://github.com/Cpasjuste/docker-fog/blob/main/README.md
 
