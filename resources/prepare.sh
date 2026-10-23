@@ -19,7 +19,7 @@ echo "installing nfs server (unfs3)..."
 wget https://github.com/unfs3/unfs3/releases/download/unfs3-0.11.0/unfs3-0.11.0.tar.gz \
     && tar -zxf unfs3-0.11.0.tar.gz -C /root \
     && cd /root/unfs3-0.11.0 && ./configure && make && make install \
-    && rm -rf /root/unfs3-0.11.0 /root/unfs3-0.11.0.tar.gz
+    && rm -rf /root/unfs3-0.11.0 /unfs3-0.11.0.tar.gz
 
 echo "installing fog..."
 /root/fogproject-${FOG_VERSION}/bin/installfog.sh --autoaccept \
