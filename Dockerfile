@@ -2,7 +2,7 @@ FROM debian:trixie-slim
 LABEL Name=fog Version=1.0.0
 
 # envs
-ENV FOG_VERSION=1.5.10.2518 \
+ENV FOG_VERSION=1.6.0.14 \
     HTTP_ADDRESS=0.0.0.0 \
     HTTP_PORT=80 \
     INTERFACE_NAME=eth0
@@ -12,7 +12,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
     && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
         apt-transport-https ca-certificates nano wget iproute2 sysv-rc-conf \
         build-essential mariadb-client mariadb-server \
-        systemd systemd-timesyncd kmod \
+        systemd systemd-timesyncd kmod lsb-release \
         autoconf bison flex pkg-config libtirpc-dev \
     && rm -rf /var/lib/apt/lists/*
 # systemd systemd-timesyncd > prevent /usr/bin/systemctl hook override

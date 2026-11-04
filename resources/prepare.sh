@@ -22,11 +22,14 @@ wget https://github.com/unfs3/unfs3/releases/download/unfs3-0.11.0/unfs3-0.11.0.
     && rm -rf /root/unfs3-0.11.0 /unfs3-0.11.0.tar.gz
 
 echo "installing fog..."
-/root/fogproject-${FOG_VERSION}/bin/installfog.sh --autoaccept \
+cd /root/fogproject-${FOG_VERSION} \
+    && bin/installfog.sh --autoaccept \
+    && cd /root \
     && rm -rf /root/fogproject-${FOG_VERSION}
 
 echo "backup default fog database"
-tar -czf /root/fog_default.sql.tar.gz /var/lib/mysql
+systemctl stop mysql \
+    && tar -czf /root/fog_default.sql.tar.gz /var/lib/mysql
 
 echo "backup images data"
 tar -czf /root/images.tar.gz /images
