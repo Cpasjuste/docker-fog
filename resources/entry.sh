@@ -20,6 +20,9 @@ echo "setting up proper images permissions"
 chown -R fogproject:www-data /images
 chmod -R 775 /images
 
+# set fogproject password
+printf '%s:%s\n' 'fogproject' "${STORAGE_PASSWORD}" | chpasswd
+
 echo "setting up web port"
 sed -i "s/:80/:${HTTP_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
 sed -i "s/Listen 80/Listen ${HTTP_PORT}/g" /etc/apache2/ports.conf
@@ -84,14 +87,10 @@ sed -i "s/('NFS_ETH_MONITOR', \"eth0\")/('NFS_ETH_MONITOR', \"${INTERFACE_NAME:-
 sed -i "s/('UDPCAST_INTERFACE', \"eth0\")/('UDPCAST_INTERFACE', \"${INTERFACE_NAME:-eth0}\")/g" "$CFG_PATH"
 sed -i "s/('UDPCAST_STARTINGPORT', 63100)/('UDPCAST_STARTINGPORT', \"${INTERFACE_NAME:-eth0}\")/g" "$CFG_PATH"
 
-echo "starting required services"
-/etc/init.d/mariadb start
-/etc/init.d/php8.4-fpm start
-/etc/init.d/apache2 start
-/etc/init.d/vsftpd start
-/etc/init.d/tftpd-hpa start
-/etc/init.d/rpcbind start
-/etc/init.d/ssh start
+echo "starting supervisord and required services"
+supervisord -c "/etc/supervisor/conf.d/supervisord.conf" &
+SUPERVISOR_PID=$!
+until supervisorctl pid >/dev/null 2>&1; do sleep 0.5; done
 
 # nfs
 fogid=$(id -u fogproject)
@@ -99,16 +98,17 @@ if [ "$USE_UNFS3" = true ] ; then
     echo "starting unfs3 server"
     echo "/images (ro,root_squash,anonuid=$fogid,anongid=33)" > /etc/exports
     echo "/images/dev (rw,root_squash,anonuid=$fogid,anongid=33)" >> /etc/exports
-    unfsd -t -n 2049 -m 20048
+    supervisorctl start unfsd
 else
     echo "starting nfs-kernel server"
     echo "/images *(ro,sync,no_wdelay,subtree_check,insecure_locks,root_squash,anonuid=$fogid,anongid=33,fsid=0)" > /etc/exports
     echo "/images/dev *(rw,async,no_wdelay,subtree_check,root_squash,anonuid=$fogid,anongid=33,fsid=1)" >> /etc/exports
-    /etc/init.d/nfs-kernel-server start
+    supervisorctl start rpc-statd
+    supervisorctl start nfs-kernel-server
 fi
 
 echo "fixing databse"
-printf '%s:%s\n' 'fogproject' "${STORAGE_PASSWORD}" | chpasswd
+until mysqladmin ping --silent >/dev/null 2>&1; do sleep 0.5; done;
 mysql -hlocalhost -uroot -e "ALTER USER 'fog'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';"
 mysql -hlocalhost -uroot -D fog -e "UPDATE users SET uPass = MD5('NEW_PASSWORD') WHERE uName = 'fog';"
 mysql -hlocalhost -uroot -D fog -e "
@@ -127,22 +127,21 @@ UPDATE users SET uPass = MD5('${WEB_PASSWORD}') WHERE uName = 'fog';
 "
 
 echo "starting fog services"
-sleep 10 # not sure why i need to delay fog services start
-/etc/init.d/FOGImageReplicator restart
-/etc/init.d/FOGImageSize restart
-/etc/init.d/FOGMulticastManager restart
-/etc/init.d/FOGPingHosts restart
-/etc/init.d/FOGScheduler restart
-/etc/init.d/FOGSnapinHash restart
-/etc/init.d/FOGSnapinReplicator restart
-/etc/init.d/FOGFileDeleter restart
-/etc/init.d/FOGPluginRunner restart
-/etc/init.d/FOGRetentionRunner restart
-/etc/init.d/FOGAgentReleaseSync restart
-
-# sleep...
-echo "all done..."
-while true
+for svc in \
+    fog-image-replicator \
+    fog-image-size \
+    fog-multicast-manager \
+    fog-ping-hosts \
+    fog-snapin-hash \
+    fog-snapin-replicator \
+    fog-task-scheduler \
+    fog-agent-release-sync \
+    fog-file-deleter \
+    fog-plugin-runner \
+    fog-retention-runner
 do
-    sleep infinity
+    supervisorctl start "$svc" || true
 done
+
+echo "all done..."
+wait $SUPERVISOR_PID

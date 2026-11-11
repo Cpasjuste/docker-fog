@@ -14,6 +14,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get update \
         build-essential mariadb-client mariadb-server \
         systemd systemd-timesyncd kmod lsb-release \
         autoconf bison flex pkg-config libtirpc-dev \
+        supervisor \
     && rm -rf /var/lib/apt/lists/*
 # systemd systemd-timesyncd > prevent /usr/bin/systemctl hook override
 # kmod > nfs-kernel-server modules loading (modprobe)

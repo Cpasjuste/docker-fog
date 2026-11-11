@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+echo "supervisor"
+cp /root/resources/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 echo "systemctl hook"
 cp /usr/bin/systemctl /usr/bin/systemctl.stock \
     && cp /root/resources/systemctl /usr/bin/systemctl \
