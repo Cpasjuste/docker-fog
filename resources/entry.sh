@@ -13,9 +13,12 @@ echo "restoring images data if needed"
 if [ -z "$(ls -A /images)" ]; then
     echo "restoring images.tar.gz..."
     tar -zxf /root/images.tar.gz -C /
-    chown -R fogproject:www-data /images
-    chmod -R 775 /images
 fi
+
+# ensure proper permissions on images
+echo "setting up proper images permissions"
+chown -R fogproject:www-data /images
+chmod -R 775 /images
 
 echo "setting up web port"
 sed -i "s/:80/:${HTTP_PORT}/g" /etc/apache2/sites-enabled/001-fog.conf
