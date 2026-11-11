@@ -1,6 +1,6 @@
 services:
   fog:
-    image: fog
+    image: cpasjuste/fog:dev
     build:
       context: .
       dockerfile: ./Dockerfile
