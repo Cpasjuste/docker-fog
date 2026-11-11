@@ -7,7 +7,7 @@ services:
     restart: unless-stopped
     #privileged: true # for nfs-kernel-server mode
     environment:
-      HTTP_ADDRESS: ${HTTP_ADDRESS:-192.168.0.40} # also used for ftp/tftp/nfs/...
+      HTTP_ADDRESS: ${HTTP_ADDRESS:-192.168.0.1} # also used for ftp/tftp/nfs/...
       HTTP_PORT: ${HTTP_PORT:-9445} # you can use a custom http port
       PHP_FPM_PORT: ${PHP_FPM_PORT:-9444} # listen on localhost, no need to open port in firewall
       INTERFACE_NAME: ${INTERFACE_NAME:-eth0} # interface name for multicast, wol, etc...
@@ -19,7 +19,7 @@ services:
       USE_UNFS3: true # use userland nfs server (no need for privileged mode)
     volumes:
       - database:/var/lib/mysql
-      - /images:/images # on host: sudo mkdir /images && sudo chown -R 1000:1000 /images
+      - /images:/images
       #- /lib/modules:/lib/modules:ro # for nfs-kernel-server mode
     network_mode: host # needed ports: https://github.com/Cpasjuste/docker-fog/blob/main/README.md
 
