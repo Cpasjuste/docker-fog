@@ -1,0 +1,4 @@
+# Local compose settings (see .env.example)
+.env
+.env.*
+!.env.example

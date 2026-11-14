@@ -1,36 +1,41 @@
+# docker-fog - development build, bridge networking (multicast NOT available)
+# Usage: docker compose -f compose.debug-bridge.yaml up --build
+# Optional: copy .env.example to .env to override build and runtime settings.
 services:
   fog:
-    image: cpasjuste/fog:dev
+    image: ${IMAGE_NAME:-cpasjuste/fog:dev}
     container_name: fog
     restart: unless-stopped
     build:
       context: .
       dockerfile: ./Dockerfile
-    #privileged: true # for nfs-kernel-server mode
+      args:                                          # optional, see .env.example
+        FOG_VERSION: ${FOG_VERSION:-1.6.0.158}       # FOG release tag to build
+        UNFS3_VERSION: ${UNFS3_VERSION:-0.11.0}      # unfs3 release to build
+    #privileged: true                                # nfs-kernel-server mode only (USE_UNFS3: false)
     environment:
-      HOST_NAME: ${HOST_NAME:-fog} # web, certificates...
-      HOST_ADDRESS: ${HOST_ADDRESS:-192.168.0.1} # also used for ftp/tftp/nfs/...
-      INTERFACE_NAME: ${INTERFACE_NAME:-eth0} # interface name for multicast, wol, etc...
-      WEB_PASSWORD: ${WEB_PASSWORD:-password} # web user (fog) password
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dockerfogsql} # mysql user (fog) password
-      # builtin storage (ssh/nfs/ftp/tftp...) password
-      # use alphanumeric because it is not handled correctly by fog (php?)
+      HOST_NAME: ${HOST_NAME:-fog}                   # hostname used for the web UI and certificates
+      HOST_ADDRESS: ${HOST_ADDRESS:-192.168.0.1}     # server LAN ip, used by tftp/ftp/nfs/...
+      INTERFACE_NAME: ${INTERFACE_NAME:-eth0}        # interface used for multicast, wol...
+      WEB_PASSWORD: ${WEB_PASSWORD:-password}        # web UI password of the "fog" user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-dockerfogsql} # database password of the "fogmaster" user
+      # storage password (ssh/ftp/nfs node, "fogproject" user)
+      # use alphanumeric characters only, others are not handled correctly by fog
       STORAGE_PASSWORD: ${STORAGE_PASSWORD:-dockerfogstorage}
-      USE_UNFS3: true # use userland nfs server (no need for privileged mode)
+      USE_UNFS3: ${USE_UNFS3:-true}                  # userland nfs server, no privileged mode needed
     volumes:
-      - database:/var/lib/mysql
-      - snapins:/opt/fog/snapins
-      - pki:/etc/fog/pki
-      - /images:/images
-      #- /lib/modules:/lib/modules:ro # for nfs-kernel-server mode
+      - database:/var/lib/mysql                      # fog database
+      - snapins:/opt/fog/snapins                     # snapins and client CA
+      - pki:/etc/fog/pki                             # generated CA / certificates
+      - /images:/images                              # images storage
+      #- /lib/modules:/lib/modules:ro                # nfs-kernel-server mode only
     ports:
-      - "${HTTPS_PORT:-443}:${HTTPS_PORT:-443}" # web
-      - "21:21"                                 # ftp
-      - "69:69/udp"                             # tftp
-      - "111:111"                               # nfs
-      - "2049:2049"                             # nfs
-      - "20048:20048"                           # nfs
-      #- "55000-60000:55000-60000/udp"          # multicast (not working in bridged network)
+      - "443:443"                                    # https (web UI, iPXE)
+      - "21:21"                                      # ftp
+      - "69:69/udp"                                  # tftp
+      - "111:111"                                    # rpcbind
+      - "2049:2049"                                  # nfs
+      - "20048:20048"                                # mountd (unfs3)
 
 volumes:
   database:
