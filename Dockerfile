@@ -79,15 +79,10 @@ COPY --chmod=755 resources/systemctl /usr/bin/systemctl
 # The FOG installer refers to the MariaDB init script as "mysql"
 RUN ln -sf /etc/init.d/mariadb /etc/init.d/mysql
 
-# supervisord runs every service in the foreground (see supervisord.conf)
-COPY resources/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
 # Pre-seeded installer answers. Placeholders (0.0.0.0, eth0, localhost,
 # #docker-fog-*#) are replaced by entry.sh at runtime.
 COPY resources/fogsettings /opt/fog/.fogsettings
 RUN sed -i "s/#docker-fog-version#/${FOG_VERSION}/g" /opt/fog/.fogsettings
-
-COPY --chmod=755 resources/entry.sh /usr/bin/entry.sh
 
 # -----------------------------------------------------------------------------
 # Build-time FOG install
@@ -108,6 +103,14 @@ RUN cd /root/fogproject-${FOG_VERSION} \
 # corresponding volumes are mounted empty
 RUN tar -czf /root/fog_default.sql.tar.gz /var/lib/mysql \
     && tar -czf /root/images.tar.gz /images
+
+# -----------------------------------------------------------------------------
+# Runtime files, not used by the installer: copied last so that editing them
+# only rebuilds these layers (the FOG install above stays cached)
+# -----------------------------------------------------------------------------
+# supervisord runs every service in the foreground (see supervisord.conf)
+COPY resources/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY --chmod=755 resources/entry.sh /usr/bin/entry.sh
 
 # Documentation only, see README.md for details (host networking ignores this)
 #   443 https | 21 ftp | 69/udp tftp | 111 rpcbind | 2049 nfs | 20048 mountd (unfs3)

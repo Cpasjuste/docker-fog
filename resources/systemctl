@@ -8,6 +8,11 @@
 # command without doing anything. The real binary is kept as
 # /usr/bin/systemctl.stock.
 #
+# `systemctl start/stop ...` therefore does NOTHING, on purpose. To control
+# services from scripts:
+#   - once supervisord runs : supervisorctl start|stop|restart <program>
+#   - before supervisord    : /etc/init.d/<service> start|stop
+#
 # Exit codes (relied upon by the FOG installer, change with care):
 #   - everything succeeds (0) ...
 #   - ... except `is-active` / `is-enabled` WITHOUT --quiet, which fail (2)

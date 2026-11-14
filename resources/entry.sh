@@ -52,6 +52,14 @@ if [ -z "$(ls -A /etc/fog/pki)" ]; then
         --recreate-CA \
         --rebuild-ipxe-with-my-ca
     cd /
+    # The installer started its own instances of these services (outside of
+    # supervisord, which is not running yet): stop them so supervisord can
+    # bind the ports. systemctl is a no-op stub here, use the init scripts.
+    # "|| true": a service that is already stopped must not abort (set -e).
+    log "stopping services started by the installer..."
+    for svc in php8.4-fpm apache2 tftpd-hpa vsftpd mariadb; do
+        "/etc/init.d/${svc}" stop || true
+    done
 fi
 
 # -----------------------------------------------------------------------------
