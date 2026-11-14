@@ -1,0 +1,119 @@
+## Start of FOG Settings
+## Created by the FOG Installer
+## Find more information about this file in the FOG Project wiki:
+##     https://wiki.fogproject.org/wiki/index.php?title=.fogsettings
+## Version: 1.6.0
+## Install time: Fri Nov 13 21:36:34 2026
+
+## FOG -- install shape, OS records, update channel, install location
+FOG_install_type='N'
+FOG_os_id='2'
+FOG_os_name='Debian'
+FOG_install_lang='yes'
+FOG_send_reports='yes'
+FOG_copy_back_old='no'
+FOG_install_mode='embed-ca'
+FOG_installed=0
+FOG_packages=' apache2 attr bc build-essential cpp curl efitools g++ gawk gcc gcc-aarch64-linux-gnu genisoimage git gzip htmldoc isolinux jq lftp libapache2-mod-php libc6 libcurl4t64 liblzma-dev m4 mariadb-client mariadb-server net-tools nfs-kernel-server openssh-server php php-bcmath php-cli php-curl php-fpm php-gd php-json php-ldap php-mbstring php-mysql php8.4-ssh2 sbsigntool sudo tar tftp-hpa tftpd-hpa unzip vsftpd wget zlib1g  '
+FOG_git_path='/root/fogproject-#docker-fog-version#'
+FOG_update_channel=''
+FOG_last_good_commit=''
+FOG_program_dir='/opt/fog'
+
+## NET -- this server own network identity
+NET_interface='eth0'
+NET_fog_server_ip='0.0.0.0'
+NET_subnet_mask='255.255.0.0'
+NET_hostname='localhost'
+
+## DHCP -- FOG acting AS a DHCP server
+DHCP_enabled='no'
+DHCP_engine=''
+DHCP_service_name='isc-dhcp-server'
+DHCP_router='# No router added'
+DHCP_dns_server_ip=''
+DHCP_range_start=''
+DHCP_range_end=''
+
+## DB -- the database connection and its dump path
+DB_name='fog'
+DB_host='localhost'
+DB_user='fogmaster'
+DB_password='#docker-fog-db-pwd#'
+DB_external='no'
+DB_backup_path='/home/'
+
+## WEB -- the web server and the web-UI URL surface
+WEB_server_engine='apache2'
+WEB_docroot='/var/www/html/'
+WEB_root='/fog/'
+WEB_php_version='8.4'
+WEB_url_proto='https'
+WEB_https_redirect='no'
+WEB_url_primary='name'
+
+## BOOT -- the client netboot path: iPXE, TFTP, FOS kernels
+BOOT_url_proto='https'
+BOOT_url_proto_forced='yes'
+BOOT_rebuild_ipxe_with_my_ca='yes'
+BOOT_external_tftp_server=''
+BOOT_tftp_options=''
+BOOT_dhcp_delay_seconds=''
+BOOT_uefi_bootfile=''
+BOOT_kernel_backups_kept='3'
+
+## STORAGE -- image storage and its NFS export
+STORAGE_image_share_path='/images'
+STORAGE_rebuild_nfs_exports='yes'
+
+## SVC -- FOG own system account and host services
+SVC_user='fogproject'
+SVC_password='#docker-fog-storage-pwd#'
+SVC_firewall_control=''
+
+## PKI -- certificate authorities and trust
+PKI_sb_enabled='yes'
+PKI_web_cert_publicly_trusted='no'
+PKI_allowed_domain_names=''
+PKI_internal_subnets=''
+PKI_san_ip_addresses='0.0.0.0'
+PKI_san_dns_names=''
+PKI_root_dir='/etc/fog/pki'
+PKI_client_cert_dir='/opt/fog/snapins/ssl'
+PKI_custom_dir='/etc/fog/customizations/pki'
+
+## Derived -- do not edit
+## Canonical certificate paths. The installer recomputes most of these
+## every run, so editing one here moves nothing.
+##
+## The exceptions are PKI_web_vhost_cert, PKI_web_vhost_key,
+## PKI_web_trust_chain, PKI_client_encrypt_cert and
+## PKI_client_encrypt_key. To serve or use a certificate FOG did not
+## issue you may either leave those alone and make each path resolve to
+## your file (a symlink is enough), or set them to where your files
+## really are -- the installer only resets one of them while it still
+## holds a default of its own. Either way FOG stops re-issuing it.
+##
+## The two client_encrypt keys are the fog-client communication keypair,
+## normally set with --client-cert/--client-key. Relocating them is a
+## re-pin event if the material differs: the installer says so, and the
+## key must stay readable by the web server or no client can
+## authenticate.
+##
+## Simplest of all: drop web-leaf.pem and web-leaf.key into
+## PKI_custom_dir above and re-run the installer, which finds the pair
+## and points these at it for you.
+PKI_root_ca_cert='/opt/fog/snapins/ssl/CA/.fogCA.pem'
+PKI_root_ca_key='/etc/fog/pki/root/ca/.fogCA.key'
+PKI_web_ca_cert='/etc/fog/pki/web/ca/.fogWebCA.pem'
+PKI_web_ca_key='/etc/fog/pki/web/ca/.fogWebCA.key'
+PKI_web_external_root_cert=''
+PKI_web_trust_chain='/etc/fog/pki/web/ca/.fogWebCAchain.pem'
+PKI_web_vhost_cert='/etc/fog/pki/web/leaf/.webLeaf.pem'
+PKI_web_vhost_key='/etc/fog/pki/web/leaf/.webLeaf.key'
+PKI_client_encrypt_cert='/etc/fog/pki/client/leaf/.srvpublic.crt'
+PKI_client_encrypt_key='/etc/fog/pki/client/leaf/.srvprivate.key'
+PKI_sb_ca_cert='/etc/fog/pki/secureboot/ca/.fogSBCA.pem'
+PKI_sb_codesign_cert='/etc/fog/pki/secureboot/leaf/sign.pem'
+PKI_sb_codesign_key='/etc/fog/pki/secureboot/leaf/sign.key'
+## End of FOG Settings
