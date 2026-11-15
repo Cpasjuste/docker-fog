@@ -47,9 +47,10 @@ services:
     #  - "traefik.tcp.routers.fog.entrypoints=websecure"
     #  - "traefik.tcp.routers.fog.service=fog"
     #  - "traefik.tcp.routers.fog.tls.passthrough=true"
+    #  - "traefik.tcp.services.fog.loadbalancer.server.port=443"
+    # if needed, restrict to lan only
     #  - "traefik.tcp.routers.fog.middlewares=fog-lan-only@docker"
     #  - "traefik.tcp.middlewares.fog-lan-only.ipallowlist.sourcerange=192.168.0.0/24"
-    #  - "traefik.tcp.services.fog.loadbalancer.server.port=443"
 
 volumes:
   database:
