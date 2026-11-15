@@ -17,8 +17,8 @@
 set -e
 
 FOG_SETTINGS="/opt/fog/.fogsettings"
-FOG_CONFIG="/var/www/html/fog/commons/config.class.php"
-FOG_TASKQUEUE="/var/www/html/fog/src/TaskHandling/TaskQueue.php"
+FOG_CONFIG="/var/www/fog/commons/config.class.php"
+FOG_TASKQUEUE="/var/www/fog/src/TaskHandling/TaskQueue.php"
 SUPERVISOR_CONF="/etc/supervisor/conf.d/supervisord.conf"
 
 INTERFACE_NAME="${INTERFACE_NAME:-eth0}"
@@ -90,6 +90,9 @@ sed -i \
     -e "s/FOG_installed=0/FOG_installed=1/g" \
     "$FOG_SETTINGS"
 
+log "fixing tftpboot address"
+sed -i "s/0.0.0.0/${HOST_NAME}/g" /tftpboot/default.ipxe
+
 log "setting fogproject system user password"
 printf '%s:%s\n' 'fogproject' "${STORAGE_PASSWORD}" | chpasswd
 
@@ -106,14 +109,11 @@ log "updating fog web config"
 perl -0pi -e 's/\Q#docker-fog-storage-pwd#\E/$ENV{STORAGE_PASSWORD}/g;' "$FOG_CONFIG"
 perl -0pi -e 's/\Q#docker-fog-db-pwd#\E/$ENV{MYSQL_PASSWORD}/g;' "$FOG_CONFIG"
 sed -i \
-    -e "s/('STORAGE_HOST', \"0.0.0.0\")/('STORAGE_HOST', \"${HOST_NAME}\")/g" \
-    -e "s/('WEB_HOST', \"0.0.0.0\")/('WEB_HOST', \"${HOST_NAME}\")/g" \
-    -e "s/('MULTICASTINTERFACE', 'eth0')/('MULTICASTINTERFACE', '${INTERFACE_NAME}')/g" \
-    -e "s/('STORAGE_INTERFACE', 'eth0')/('STORAGE_INTERFACE', '${INTERFACE_NAME}')/g" \
-    -e "s/('WOL_INTERFACE', \"eth0\")/('WOL_INTERFACE', \"${INTERFACE_NAME}\")/g" \
-    -e "s/('NFS_ETH_MONITOR', \"eth0\")/('NFS_ETH_MONITOR', \"${INTERFACE_NAME}\")/g" \
-    -e "s/('UDPCAST_INTERFACE', \"eth0\")/('UDPCAST_INTERFACE', \"${INTERFACE_NAME}\")/g" \
-    -e "s/('UDPCAST_STARTINGPORT', 63100)/('UDPCAST_STARTINGPORT', \"55000\")/g" \
+    -e "s/'TFTP_HOST', \"0.0.0.0\"/'TFTP_HOST', \"${HOST_ADDRESS}\"/g" \
+    -e "s/'STORAGE_HOST', \"0.0.0.0\"/'STORAGE_HOST', \"${HOST_NAME}\"/g" \
+    -e "s/'WEB_HOST', \"0.0.0.0\"/'WEB_HOST', \"${HOST_NAME}\"/g" \
+    -e "s/'UDPCAST_STARTINGPORT', 63100/'UDPCAST_STARTINGPORT', \"55000\"/g" \
+    -e "s/eth0/${INTERFACE_NAME}/g" \
     "$FOG_CONFIG"
 
 # -----------------------------------------------------------------------------
@@ -153,14 +153,14 @@ log "updating fog database"
 mysql -hlocalhost -uroot -e "ALTER USER 'fogmaster'@'localhost' IDENTIFIED BY '${MYSQL_PASSWORD}';"
 mysql -hlocalhost -uroot -D fog -e "
 UPDATE users SET uPass = MD5('${WEB_PASSWORD}') WHERE uName = 'fog';
-UPDATE globalSettings SET settingValue = '${HOST_ADDRESS}'     WHERE settingKey = 'FOG_TFTP_HOST';
-UPDATE globalSettings SET settingValue = '${HOST_NAME}'        WHERE settingKey = 'FOG_WEB_HOST';
-UPDATE globalSettings SET settingValue = '${STORAGE_PASSWORD}' WHERE settingKey = 'FOG_TFTP_FTP_PASSWORD';
-UPDATE globalSettings SET settingValue = '${INTERFACE_NAME}'   WHERE settingKey = 'FOG_UDPCAST_INTERFACE';
-UPDATE globalSettings SET settingValue = '${INTERFACE_NAME}'   WHERE settingKey = 'FOG_NFS_ETH_MONITOR';
-UPDATE globalSettings SET settingValue = '${INTERFACE_NAME}'   WHERE settingKey = 'FOG_WOL_INTERFACE';
-UPDATE globalSettings SET settingValue = '55000'               WHERE settingKey = 'FOG_UDPCAST_STARTINGPORT';
-UPDATE globalSettings SET settingValue = '55000'               WHERE settingKey = 'FOG_MULTICAST_PORT_OVERRIDE';
+UPDATE globalSettings SET settingValue = '${HOST_ADDRESS}'      WHERE settingKey = 'FOG_TFTP_HOST';
+UPDATE globalSettings SET settingValue = '${HOST_NAME}'         WHERE settingKey = 'FOG_WEB_HOST';
+UPDATE globalSettings SET settingValue = '${STORAGE_PASSWORD}'  WHERE settingKey = 'FOG_TFTP_FTP_PASSWORD';
+UPDATE globalSettings SET settingValue = '${INTERFACE_NAME}'    WHERE settingKey = 'FOG_UDPCAST_INTERFACE';
+UPDATE globalSettings SET settingValue = '${INTERFACE_NAME}'    WHERE settingKey = 'FOG_NFS_ETH_MONITOR';
+UPDATE globalSettings SET settingValue = '${INTERFACE_NAME}'    WHERE settingKey = 'FOG_WOL_INTERFACE';
+UPDATE globalSettings SET settingValue = '55000'                WHERE settingKey = 'FOG_UDPCAST_STARTINGPORT';
+UPDATE globalSettings SET settingValue = '55000'                WHERE settingKey = 'FOG_MULTICAST_PORT_OVERRIDE';
 UPDATE nfsGroupMembers SET ngmHostname  = '${HOST_NAME}'        WHERE ngmID = 1;
 UPDATE nfsGroupMembers SET ngmPass      = '${STORAGE_PASSWORD}' WHERE ngmID = 1;
 UPDATE nfsGroupMembers SET ngmInterface = '${INTERFACE_NAME}'   WHERE ngmID = 1;

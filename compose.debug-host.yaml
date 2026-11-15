@@ -26,6 +26,7 @@ services:
       USE_UNFS3: ${USE_UNFS3:-true}                  # userland nfs server, no privileged mode needed
     volumes:
       - database:/var/lib/mysql                      # fog database
+      - tftpboot:/tftpboot                           # tftboot
       - snapins:/opt/fog/snapins                     # snapins and client CA
       - pki:/etc/fog/pki                             # generated CA / certificates
       - /images:/images                              # images storage
@@ -34,5 +35,6 @@ services:
 
 volumes:
   database:
+  tftpboot:
   snapins:
   pki:
