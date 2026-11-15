@@ -6,6 +6,9 @@ services:
     image: ${IMAGE_NAME:-cpasjuste/fog:dev}
     container_name: fog
     restart: unless-stopped
+    # if using a reverse proxy like traefik, you will need to disable healthcheck
+    #healthcheck:
+    #  disable: true
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -37,6 +40,14 @@ services:
       - "111:111"                                    # rpcbind
       - "2049:2049"                                  # nfs
       - "20048:20048"                                # mountd (unfs3)
+    # traefik configuration
+    #labels:
+    #  - "traefik.enable=true"
+    #  - "traefik.tcp.routers.fog.rule=HostSNI(`${HOST_NAME}`)"
+    #  - "traefik.tcp.routers.fog.entrypoints=websecure"
+    #  - "traefik.tcp.routers.fog.service=fog"
+    #  - "traefik.tcp.routers.fog.tls.passthrough=true"
+    #  - "traefik.tcp.services.fog.loadbalancer.server.port=443"
 
 volumes:
   database:
