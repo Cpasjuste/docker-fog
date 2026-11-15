@@ -117,6 +117,6 @@ COPY --chmod=755 resources/entry.sh /usr/bin/entry.sh
 EXPOSE 443 21 69/udp 111 2049 20048
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=30s \
-    CMD wget --spider --quiet --no-check-certificate https://${HOST_ADDRESS}/ || exit 1
+    CMD wget --spider --quiet --no-check-certificate https://127.0.0.1/ || exit 1
 
 ENTRYPOINT ["/usr/bin/entry.sh"]
