@@ -82,6 +82,9 @@ chmod -R 775 /images
 # -----------------------------------------------------------------------------
 # 3. Runtime configuration
 # -----------------------------------------------------------------------------
+log "update agent certificate"
+cp /etc/fog/pki/root/ca/.fogCA.pem /var/www/html/fog/management/other/ca.cert.pem
+
 log "updating fog settings"
 apply_network_settings
 sed -i \
